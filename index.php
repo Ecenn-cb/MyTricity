@@ -1,3 +1,9 @@
+<?php
+session_start();
+
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,14 +33,25 @@
         <li><a href="#">Blog</a></li>
       </ul>
     </nav>
+
     <div class="icons">
-      <i class="fas fa-user"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-shopping-cart"></i>
-      <i class="fas fa-search"></i>
-      <i class="fas fa-gamepad"></i>
+      <div class="user-info">
+        <a href="<?php echo $username ? 'profile.php' : 'LoginForm.php'; ?>" style="text-decoration: none;">
+          <i class="fas fa-user" style="color: #FFFFFF;"></i>
+          <?php if ($username): ?>
+            <span class="username" style="color: #FFFFFF;"><?php echo htmlspecialchars($username); ?></span>
+          <?php endif; ?>
+        </a>
+      </div>
+      
+      <a href="#"><i class="fas fa-star" style="color: #FFFFFF;"></i></a>
+      <a href="#"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
+      <a href="#"><i class="fas fa-search" style="color: #FFFFFF;"></i></a>
+
+      <?php if ($username): ?>
+        <a href="logout.php" style="color: #FFFFFF; text-decoration: none;">Logout</a>
+      <?php endif; ?>
     </div>
-  </div>
 
   <script>
     const navbar = document.getElementById('mainNavbar');

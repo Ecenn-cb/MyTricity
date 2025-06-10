@@ -18,6 +18,8 @@ header {
   background: transparent;
 }
 
+/* login */
+
 .navbar {
   position: fixed;
   top: 0;
@@ -608,4 +610,111 @@ hr {
 
 .social-icons a:hover {
   background: #ff4d8b;
+}
+
+
+@media (max-width: 768px) {
+  header,
+  .navbar,
+  .hero,
+  .features,
+  .our-story,
+  .categories,
+  .featured-products,
+  .customer-reviews,
+  .footer {
+    padding: 20px;
+  }
+
+  .hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-text {
+    max-width: 100%;
+    margin-bottom: 30px;
+  }
+
+  .hero-img img {
+    max-width: 300px;
+  }
+
+  .our-story {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .story-text {
+    padding: 30px;
+  }
+
+  .category-card,
+  .feature {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .featured-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .review-card {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .footer-columns {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  nav ul {
+    flex-direction: column;
+    gap: 15px;
+    background: #111;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    display: none;
+  }
+
+  nav ul.active {
+    display: flex;
+  }
+}
+
+/* Mobile View (480px dan ke bawah) */
+@media (max-width: 480px) {
+  .logo {
+    font-size: 18px;
+  }
+
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .hero-text h1 {
+    font-size: 32px;
+  }
+
+  .story-text {
+    padding: 20px;
+  }
+
+  .featured-content h2 {
+    font-size: 20px;
+  }
+
+  .review-title,
+  .section-title {
+    font-size: 24px;
+  }
+
+  .footer-column {
+    text-align: center;
+  }
 }
