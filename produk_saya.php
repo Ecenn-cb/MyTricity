@@ -19,16 +19,31 @@ while ($row = $resReview->fetch_assoc()) {
     $reviewed[] = $row['id_product'];
 }
 
-// Ambil semua pesanan user yang sudah dibayar
-$query = $conn->prepare("
-    SELECT o.id_order, o.status AS order_status, od.quantity, od.price, p.name AS product_name, p.image, p.id_product
-    FROM orders o
-    JOIN order_details od ON o.id_order = od.id_order
-    JOIN products p ON od.id_product = p.id_product
-    WHERE o.id_user = ? AND o.status != 'pending'
-    ORDER BY o.id_order DESC
-");
-$query->bind_param("i", $id_user);
+// Cek apakah user memilih filter status
+$statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
+$allowedStatus = ['paid', 'confirmed', 'shipped', 'accepted', 'completed'];
+
+if ($statusFilter && in_array($statusFilter, $allowedStatus)) {
+    $query = $conn->prepare("
+        SELECT o.id_order, o.status AS order_status, od.quantity, od.price, p.name AS product_name, p.image, p.id_product
+        FROM orders o
+        JOIN order_details od ON o.id_order = od.id_order
+        JOIN products p ON od.id_product = p.id_product
+        WHERE o.id_user = ? AND o.status = ?
+        ORDER BY o.id_order DESC
+    ");
+    $query->bind_param("is", $id_user, $statusFilter);
+} else {
+    $query = $conn->prepare("
+        SELECT o.id_order, o.status AS order_status, od.quantity, od.price, p.name AS product_name, p.image, p.id_product
+        FROM orders o
+        JOIN order_details od ON o.id_order = od.id_order
+        JOIN products p ON od.id_product = p.id_product
+        WHERE o.id_user = ? AND o.status != 'pending'
+        ORDER BY o.id_order DESC
+    ");
+    $query->bind_param("i", $id_user);
+}
 $query->execute();
 $result = $query->get_result();
 
@@ -37,11 +52,10 @@ while ($row = $result->fetch_assoc()) {
     $orders[] = $row;
 }
 
-// Proses konfirmasi bahwa produk sudah diterima
+// Proses konfirmasi selesai
 if (isset($_GET['confirm']) && is_numeric($_GET['confirm'])) {
     $id_order = intval($_GET['confirm']);
 
-    // Pastikan order milik user dan statusnya accepted
     $check = $conn->prepare("SELECT * FROM orders WHERE id_order = ? AND id_user = ? AND status = 'accepted'");
     $check->bind_param("ii", $id_order, $id_user);
     $check->execute();
@@ -79,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -99,6 +112,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
             text-align: center;
             color: #ff4d8b;
             margin-bottom: 30px;
+        }
+
+        form select {
+            padding: 6px;
+            border-radius: 6px;
+            border: none;
+            background-color: #1e1e1e;
+            color: #fff;
         }
 
         .order-list {
@@ -215,6 +236,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 <body>
     <h1>🛒 Produk Saya</h1>
 
+    <!-- Filter Status -->
+    <form method="GET" style="text-align:center; margin-bottom: 20px;">
+        <label for="status_filter">Filter Status:</label>
+        <select name="status" id="status_filter" onchange="this.form.submit()">
+            <option value="">Semua</option>
+            <option value="paid" <?= $statusFilter === 'paid' ? 'selected' : '' ?>>Paid</option>
+            <option value="confirmed" <?= $statusFilter === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
+            <option value="shipped" <?= $statusFilter === 'shipped' ? 'selected' : '' ?>>Shipped</option>
+            <option value="accepted" <?= $statusFilter === 'accepted' ? 'selected' : '' ?>>Accepted</option>
+            <option value="completed" <?= $statusFilter === 'completed' ? 'selected' : '' ?>>Completed</option>
+        </select>
+    </form>
+
     <?php if (count($orders) > 0): ?>
         <div class="order-list">
             <?php foreach ($orders as $order): ?>
@@ -252,9 +286,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
             <?php endforeach; ?>
         </div>
     <?php else: ?>
-        <div class="no-orders">
-            Belum ada produk yang Anda beli.
-        </div>
+        <div class="no-orders">Belum ada produk yang Anda beli.</div>
     <?php endif; ?>
 
     <a href="index.php" class="back-link">← Kembali</a>

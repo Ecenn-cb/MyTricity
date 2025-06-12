@@ -192,14 +192,14 @@ foreach ($cartItems as $item) {
     <div class="featured-content">
       <h2>PRO X SUPERLIGHT</h2>
       <p>An iconic 60 g pro gaming mouse designed with the world’s top players.</p>
-      <a href="#">Buy Now <i class="fas fa-arrow-right"></i></a>
+      <a href="products.php">Buy Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
   <div class="featured-card" style="background-image: url('gambar/razer-blackshark-v2-pro-black-03.jpg');">
     <div class="featured-content">
       <h2>RAZER BLACKSHARK V2 PRO</h2>
       <p>A next-generation super wideband mic for unrivalled vocal clarity, on-board audio profiles for competitive FPS titles</p>
-      <a href="#">Buy Now <i class="fas fa-arrow-right"></i></a>
+      <a href="products.php">Buy Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 </section>
