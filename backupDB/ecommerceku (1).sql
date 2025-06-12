@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2025 at 04:19 PM
+-- Generation Time: Jun 12, 2025 at 03:52 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,6 +32,19 @@ CREATE TABLE `categories` (
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id_category`, `name`) VALUES
+(5, 'Chair'),
+(3, 'Headset'),
+(7, 'IEM'),
+(2, 'Keyboard'),
+(6, 'Microphone'),
+(1, 'Mouse'),
+(4, 'Speaker');
+
 -- --------------------------------------------------------
 
 --
@@ -42,9 +55,17 @@ CREATE TABLE `orders` (
   `id_order` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
   `total_price` decimal(12,2) NOT NULL,
-  `status` enum('pending','paid','shipped','completed','cancelled') DEFAULT 'pending',
+  `status` enum('pending','paid','confirmed','shipped','accepted','completed','cancelled') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id_order`, `id_user`, `total_price`, `status`, `created_at`) VALUES
+(1, 1, 600000.00, 'shipped', '2025-06-12 13:05:01'),
+(2, 1, 700000.00, 'completed', '2025-06-12 13:31:17');
 
 -- --------------------------------------------------------
 
@@ -60,6 +81,14 @@ CREATE TABLE `order_details` (
   `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `order_details`
+--
+
+INSERT INTO `order_details` (`id_order_detail`, `id_order`, `id_product`, `quantity`, `price`) VALUES
+(1, 1, 1, 1, 600000.00),
+(2, 2, 2, 1, 700000.00);
+
 -- --------------------------------------------------------
 
 --
@@ -74,6 +103,14 @@ CREATE TABLE `payments` (
   `payment_date` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` enum('pending','success','failed') DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payments`
+--
+
+INSERT INTO `payments` (`id_payment`, `id_order`, `payment_method`, `amount`, `payment_date`, `status`) VALUES
+(1, 1, 'E-Wallet (OVO/DANA/Gopay)', 600000.00, '2025-06-12 13:30:53', 'success'),
+(2, 2, 'Transfer Bank', 700000.00, '2025-06-12 13:31:21', 'success');
 
 -- --------------------------------------------------------
 
@@ -91,6 +128,18 @@ CREATE TABLE `products` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id_product`, `name`, `description`, `price`, `stock`, `image`, `created_at`) VALUES
+(1, 'Logitech G502 HERO', 'Mouse Edan', 600000.00, 4, 'prod_684acf7fc2a84.webp', '2025-06-12 13:00:47'),
+(2, 'Headset Hyper X', 'Headsetnya anak gamers', 700000.00, 4, 'prod_684ad0233cb47.png', '2025-06-12 13:03:31'),
+(3, 'Rexux Gaming Chair', 'Kursinya para gamers', 650000.00, 2, 'prod_684ad03ac93c8.png', '2025-06-12 13:03:54'),
+(4, 'Keyboard Mechanic', 'Keyboard cetak cetuk', 250000.00, 3, 'prod_684ad054600a3.webp', '2025-06-12 13:04:20'),
+(5, 'Rexus Mouse', 'Mouse Keren', 250000.00, 5, 'prod_684ad8a15966d.png', '2025-06-12 13:39:45'),
+(6, 'Logitech G203 Lightsync', 'Mouse Murah enak', 400000.00, 5, 'prod_684ad8c698dee.jpg', '2025-06-12 13:40:22');
+
 -- --------------------------------------------------------
 
 --
@@ -102,6 +151,18 @@ CREATE TABLE `product_categories` (
   `id_product` int(11) NOT NULL,
   `id_category` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_categories`
+--
+
+INSERT INTO `product_categories` (`id`, `id_product`, `id_category`) VALUES
+(1, 1, 1),
+(2, 2, 3),
+(3, 3, 5),
+(4, 4, 2),
+(10, 5, 1),
+(11, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -117,6 +178,13 @@ CREATE TABLE `reviews` (
   `comment` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`id_review`, `id_product`, `id_user`, `rating`, `comment`, `created_at`) VALUES
+(1, 2, 1, 5, 'Bagus banget produknya', '2025-06-12 13:36:42');
 
 -- --------------------------------------------------------
 
@@ -135,6 +203,14 @@ CREATE TABLE `users` (
   `role` enum('admin','customer') DEFAULT 'customer',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `full_name`, `phone`, `address`, `role`, `created_at`) VALUES
+(1, 'melsencb', 'bagaskaramelsen@gmail.com', '$2y$10$fUyTgIImw9w11XfmSH1eGetIZX9cHwEUxK2rkU4j6y5xJnV61Wh8i', 'Melsen Candika Bagaskara', '0895395251660', 'JL Raya Sukabumi No 35 Cianjur (Cikaret)', 'customer', '2025-06-12 12:58:07'),
+(2, 'admin', 'tricity@gmail.com', '$2y$10$U9PQTvvx2C1Ppp8ORJy7j.PCpIn42OXH1CwkY4Kmtf5N2A9NXgMEK', 'Tricity Corporation', '325351', 'PT. Tricity Cianjur', 'admin', '2025-06-12 12:58:26');
 
 -- --------------------------------------------------------
 
@@ -228,49 +304,49 @@ ALTER TABLE `wishlist`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id_category` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_category` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `id_order_detail` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_order_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id_payment` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_payment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id_product` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_product` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `product_categories`
 --
 ALTER TABLE `product_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `wishlist`
