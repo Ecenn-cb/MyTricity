@@ -199,6 +199,9 @@ while ($row = $wishlistRes->fetch_assoc()) {
                         <a href="updateProduk.php?id=<?= $prod['id_product'] ?>" class="edit-button">
                             <i class="fas fa-edit"></i> Edit
                         </a>
+                        <a href="hapusProduk.php?id=<?= $prod['id_product'] ?>" class="delete-button" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                            <i class="fas fa-trash"></i> Hapus
+                        </a>
                     <?php endif; ?>
                 </div>
             </div>

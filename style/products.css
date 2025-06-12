@@ -235,3 +235,16 @@ header h1 {
     font-weight: bold;
     margin-top: 4px;
 }
+
+.delete-button {
+    display: inline-block;
+    background-color: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+.delete-button:hover {
+    background-color: #c0392b;
+}
