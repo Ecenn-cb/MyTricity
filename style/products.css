@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
+
+*{
+    text-decoration: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #121212;
+    color: white;
+}
+
+/* === Navbar === */
+header .navbar {
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 40px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    text-decoration: none;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo i {
+    margin-right: 10px;
+    color: #ff3cac;
+}
+
+.navbar nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.navbar nav ul li a:hover {
+    color: #ff3cac;
+}
+
+.icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icons a {
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.icons .username {
+    margin-left: 8px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.navbar.hidden {
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.navbar.visible {
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+/* === Header Title & Button Group === */
+header h1 {
+    color: #ff4d8b;
+    font-size: 28px;
+    margin: 0;
+}
+
+.btn-group a {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: 2px solid #ff4d8b;
+    background-color: #000;
+    color: #ff4d8b;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-group a:hover {
+    background-color: #ff4d8b;
+    color: #fff;
+}
+
+/* === Filter === */
+.filter-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+
+.filter-container input[type="text"],
+.filter-container select,
+.filter-container button {
+    padding: 10px;
+    margin: 5px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+.filter-container button {
+    background-color: #ff4d8b;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.filter-container button:hover {
+    background-color: #fff;
+    color: #ff4d8b;
+    border: 2px solid #ff4d8b;
+}
+
+/* === Product Section === */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 40px;
+}
+
+.product-card {
+    background-color: #1a1a1a;
+    border: 1px solid #ff4d8b55;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 15px #ff4d8b33;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    color: white;
+    margin: 10px;
+}
+
+.product-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px #ff4d8b;
+}
+
+.product-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #000;
+}
+
+.product-card h2 {
+    color: #ff4d8b;
+    margin: 10px 0;
+}
+
+.product-card .desc {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 10px;
+    height: 60px;
+    overflow: hidden;
+}
+
+.product-card .price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.product-card .stock {
+    color: #999;
+    font-size: 13px;
+}
+
+/* Tag kategori berbentuk oval kecil */
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    padding: 0;
+    margin: 8px 0;
+    background: none;
+    border: none;
+    height: auto;
+    width: 100%;
+}
+
+.category-tag {
+    background-color: #ff2e92;
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: 'Orbitron', sans-serif;
+    box-shadow: 0 0 5px #ff2e92;
+    white-space: nowrap;
+    display: inline-block;
+    line-height: 1;
+}
+
+
+.rating {
+    font-size: 0.9em;
+    color: #e69c00;
+    font-weight: bold;
+    margin-top: 4px;
+}

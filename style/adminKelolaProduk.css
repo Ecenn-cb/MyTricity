@@ -1,0 +1,122 @@
+/* Reset & base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #ffffff;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(255, 77, 139, 0.4);
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #ff4d8b;
+    font-size: 28px;
+}
+
+.kembali-btn {
+    background-color: #ff4d8b;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.3s;
+    font-weight: bold;
+}
+
+.kembali-btn:hover {
+    background-color: #ff1c6d;
+}
+
+.container {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.card {
+    background: #1e1e1e;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(255, 77, 139, 0.2);
+}
+
+.card h2 {
+    margin-bottom: 20px;
+    color: #ff4d8b;
+    font-size: 22px;
+    border-bottom: 2px solid #ff4d8b;
+    padding-bottom: 10px;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="file"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 10px;
+    margin: 12px 0;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+    border-color: #ff4d8b;
+}
+
+form button {
+    background-color: #ff4d8b;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+form button:hover {
+    background-color: #ff1c6d;
+}
+
+.alert {
+    padding: 12px;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-weight: bold;
+    text-align: center;
+}
+
+.alert.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.alert.error {
+    background-color: #dc3545;
+    color: white;
+}
+

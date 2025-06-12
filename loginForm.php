@@ -1,37 +1,49 @@
 <?php
 session_start();
-
-
 include 'koneksiDB.php';
 
 $error = '';
 
+// Proses login
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    $query = "SELECT * FROM users WHERE username = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($user = $result->fetch_assoc()) {
-        if (password_verify($password, $user['password'])) {
-            // Login sukses
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['full_name'] = $user['full_name'];
-            header("Location: index.php");
-            exit();
-        } else {
-            $error = "Password salah.";
-        }
+    // Validasi kosong
+    if (empty($username) || empty($password)) {
+        $error = "Username dan password wajib diisi.";
     } else {
-        $error = "Username tidak ditemukan.";
+        $query = "SELECT * FROM users WHERE username = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($user = $result->fetch_assoc()) {
+            if (password_verify($password, $user['password'])) {
+                // Login sukses: Simpan data penting ke session
+                $_SESSION['id_user'] = $user['id_user']; // Penting untuk referensi user
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['full_name'] = $user['full_name'];
+
+                // Redirect berdasarkan role (opsional)
+                if ($user['role'] === 'admin') {
+                    header("Location: admin_dashboard.php");
+                } else {
+                    header("Location: index.php");
+                }
+                exit();
+            } else {
+                $error = "Password salah.";
+            }
+        } else {
+            $error = "Username tidak ditemukan.";
+        }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -129,6 +141,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #3498db;
             text-decoration: none;
         }
+
+        .forgot-password{
+            margin-top: 20px;
+        }
+
+        .forgot-password a{
+            text-decoration: none;
+            color: #3498db;
+        }
     </style>
 </head>
 <body>
@@ -158,6 +179,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="login-link">
             Belum punya Akun? <a href="registerForm.php">Register di sini</a>
+        </div>
+
+        <div class="forgot-password">
+            <a href="forgot_password.php">Lupa Password?</a>
         </div>
 
         <div class="login-batal">

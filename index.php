@@ -1,7 +1,14 @@
 <?php
 session_start();
 
-$username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
+$username = $_SESSION['username'] ?? null;
+$role = $_SESSION['role'] ?? null;
+$cartItems = $_SESSION['cart'] ?? [];
+$total = 0;
+
+foreach ($cartItems as $item) {
+    $total += $item['price'] * $item['quantity'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -16,9 +23,11 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
 </head>
 <body>
+  
   <header>
   <div class="navbar visible" id="mainNavbar">
     <div class="logo">
@@ -26,10 +35,8 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     </div>
     <nav>
       <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Collections</a></li>
-        <li><a href="#">Products</a></li>
-        <li><a href="#">Pages</a></li>
+        <li><a href="index.php">Home</a></li>
+        <li><a href="products.php">Products</a></li>
         <li><a href="#">Blog</a></li>
       </ul>
     </nav>
@@ -43,32 +50,23 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
           <?php endif; ?>
         </a>
       </div>
-      
-      <a href="#"><i class="fas fa-star" style="color: #FFFFFF;"></i></a>
-      <a href="#"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
-      <a href="#"><i class="fas fa-search" style="color: #FFFFFF;"></i></a>
+
+      <?php if ($username && isset($role) && $role === 'admin'): ?>
+        <a href="admin_dashboard.php" title="Dashboard Admin">
+          <i class="fas fa-tachometer-alt" style="color: #FFFFFF;"></i>
+        </a>
+      <?php endif; ?>
+
+      <a href="cart.php"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
+      <a href="produk_saya.php"><i class="fas fa-receipt" style="color: #FFFFFF;"></i></a>
 
       <?php if ($username): ?>
         <a href="logout.php" style="color: #FFFFFF; text-decoration: none;">Logout</a>
       <?php endif; ?>
     </div>
-
-  <script>
-    const navbar = document.getElementById('mainNavbar');
-
-    window.addEventListener('scroll', () => {
-    if (window.scrollY > 1000) {
-        navbar.classList.add('visible');
-        navbar.classList.remove('hidden');
-    } else if(window.scrollY == 0){
-        navbar.classList.add('visible');
-    } else {
-        navbar.classList.remove('visible');
-        navbar.classList.add('hidden');
-    }
-    });
-    </script>
+  </div>
 </header>
+
 
   <main class="hero">
   <video autoplay muted loop class="hero-bg-video">
@@ -169,22 +167,22 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     <div class="category-card">
       <img src="gambar/61AnP7HbarL._AC_SL1200_-removebg-preview.png" alt="Keyboards">
       <h3>Keyboards</h3>
-      <a href="#">Shop Now <i class="fas fa-arrow-right"></i></a>
+      <a href="products.php">Shop Now <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="category-card">
       <img src="gambar/Amazon_com__Glorious_Model_O__Model_O__Matte_Black___Computers___Accessories-removebg-preview.png" alt="Gaming Mouse">
       <h3>Gaming Mouse</h3>
-      <a href="#">Shop Now <i class="fas fa-arrow-right"></i></a>
+      <a href="products.php">Shop Now <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="category-card">
       <img src="gambar/download__1_-removebg-preview.png" alt="Headphones">
       <h3>Headphones</h3>
-      <a href="#">Shop Now <i class="fas fa-arrow-right"></i></a>
+      <a href="products.php">Shop Now <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="category-card">
       <img src="gambar/PS5_And_Xbox_Series_X_Are_Likely_Going_To_Keep_Playing__Price_Chicken__Through_June-removebg-preview.png" alt="Gaming Controllers">
       <h3>Gaming Controllers</h3>
-      <a href="#">Shop Now <i class="fas fa-arrow-right"></i></a>
+      <a href="products.php">Shop Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 </section>

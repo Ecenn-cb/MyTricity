@@ -1,15 +1,19 @@
 <?php
-$host = "localhost";
-$user = "root"; // ganti jika user Anda berbeda
-$password = ""; // ganti jika password MySQL Anda tidak kosong
-$dbname = "ecommerceku"; // nama database Anda
+// Konfigurasi database
+$host = 'localhost';
+$user = 'root';       // Ganti jika user berbeda
+$password = '';       // Ganti jika ada password
+$dbname = 'ecommerceku'; // Nama database
 
+// Membuat koneksi
 $conn = new mysqli($host, $user, $password, $dbname);
 
 // Cek koneksi
 if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+    // Jangan tampilkan detail error ke user di production
+    die("Koneksi ke database gagal.");
 }
 
-// echo "Berhasil";
+// Set charset UTF-8 (untuk mendukung karakter internasional)
+$conn->set_charset('utf8');
 ?>
