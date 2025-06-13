@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 12, 2025 at 03:52 PM
+-- Generation Time: Jun 12, 2025 at 04:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -86,7 +86,6 @@ CREATE TABLE `order_details` (
 --
 
 INSERT INTO `order_details` (`id_order_detail`, `id_order`, `id_product`, `quantity`, `price`) VALUES
-(1, 1, 1, 1, 600000.00),
 (2, 2, 2, 1, 700000.00);
 
 -- --------------------------------------------------------
@@ -133,7 +132,6 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id_product`, `name`, `description`, `price`, `stock`, `image`, `created_at`) VALUES
-(1, 'Logitech G502 HERO', 'Mouse Edan', 600000.00, 4, 'prod_684acf7fc2a84.webp', '2025-06-12 13:00:47'),
 (2, 'Headset Hyper X', 'Headsetnya anak gamers', 700000.00, 4, 'prod_684ad0233cb47.png', '2025-06-12 13:03:31'),
 (3, 'Rexux Gaming Chair', 'Kursinya para gamers', 650000.00, 2, 'prod_684ad03ac93c8.png', '2025-06-12 13:03:54'),
 (4, 'Keyboard Mechanic', 'Keyboard cetak cetuk', 250000.00, 3, 'prod_684ad054600a3.webp', '2025-06-12 13:04:20'),
@@ -157,7 +155,6 @@ CREATE TABLE `product_categories` (
 --
 
 INSERT INTO `product_categories` (`id`, `id_product`, `id_category`) VALUES
-(1, 1, 1),
 (2, 2, 3),
 (3, 3, 5),
 (4, 4, 2),
