@@ -53,7 +53,8 @@ try {
     $price = $product['price'];
 
     if ($product['stock'] < 1) {
-        throw new Exception("Stok produk habis.");
+        header("Location: products.php?error=" . urlencode("Stok produk habis."));
+        exit();
     }
 
     // 3. Cek/Tambah Item ke Keranjang
@@ -66,9 +67,9 @@ try {
         $item = $itemResult->fetch_assoc();
         $newQuantity = $item['quantity'] + $quantity;
         
-        // Cek stok cukup untuk penambahan
         if ($newQuantity > $product['stock']) {
-            throw new Exception("Stok tidak mencukupi untuk penambahan quantity.");
+            header("Location: products.php?error=" . urlencode("Stok tidak mencukupi untuk penambahan quantity."));
+            exit();
         }
         
         $updateItem = $conn->prepare("UPDATE order_details SET quantity = ? WHERE id_order_detail = ?");
@@ -94,20 +95,13 @@ try {
         throw new Exception("Gagal update total harga: " . $updateTotal->error);
     }
 
-    // Commit transaksi jika semua berhasil
     $conn->commit();
-    
     header("Location: cart.php?success=1");
     exit();
 
 } catch (Exception $e) {
-    // Rollback jika ada error
     $conn->rollback();
-    
-    // Log error untuk debugging
     error_log("Error in cart process: " . $e->getMessage());
-    
-    // Redirect dengan pesan error
     header("Location: products.php?error=" . urlencode($e->getMessage()));
     exit();
 }

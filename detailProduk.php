@@ -1,5 +1,5 @@
 <?php
-session_start(); // Mulai session di awal
+session_start();
 include 'koneksiDB.php';
 
 // Cek apakah user sudah login
@@ -13,9 +13,9 @@ if (!isset($_GET['id'])) {
 }
 
 $id = $_GET['id'];
-$user_id = $_SESSION['id_user']; // ID user yang login
+$user_id = $_SESSION['id_user'];
 
-// Ambil data produk dengan prepared statement
+// Ambil data produk
 $query = $conn->prepare("SELECT * FROM products WHERE id_product = ?");
 $query->bind_param("i", $id);
 $query->execute();
@@ -26,7 +26,7 @@ if (!$produk) {
     die("Produk tidak ditemukan!");
 }
 
-// Ambil kategori produk (perbaikan query JOIN)
+// Ambil kategori
 $kategoriQuery = $conn->prepare("
     SELECT c.name 
     FROM product_categories pc
@@ -36,13 +36,12 @@ $kategoriQuery = $conn->prepare("
 $kategoriQuery->bind_param("i", $id);
 $kategoriQuery->execute();
 $kategoriResult = $kategoriQuery->get_result();
-
 $kategoriList = [];
 while ($kat = $kategoriResult->fetch_assoc()) {
     $kategoriList[] = $kat['name'];
 }
 
-// Ambil rating produk
+// Ambil rating
 $ratingQuery = $conn->prepare("
     SELECT AVG(rating) AS avg_rating, COUNT(*) AS total_reviews 
     FROM reviews 
@@ -51,11 +50,10 @@ $ratingQuery = $conn->prepare("
 $ratingQuery->bind_param("i", $id);
 $ratingQuery->execute();
 $ratingResult = $ratingQuery->get_result()->fetch_assoc();
-
 $avgRating = $ratingResult['avg_rating'] ? round($ratingResult['avg_rating'], 1) : null;
 $totalReviews = $ratingResult['total_reviews'];
 
-// Cek apakah produk sudah ada di wishlist user
+// Cek wishlist
 $wishlistQuery = $conn->prepare("
     SELECT 1 FROM wishlist 
     WHERE id_user = ? AND id_product = ?
@@ -64,6 +62,12 @@ $wishlistQuery->bind_param("ii", $user_id, $id);
 $wishlistQuery->execute();
 $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
 ?>
+
+<?php if (isset($_GET['error'])): ?>
+<script>
+    alert(<?= json_encode($_GET['error']); ?>);
+</script>
+<?php endif; ?>
 
 <!DOCTYPE html>
 <html lang="id">
@@ -146,12 +150,20 @@ $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
             font-weight: bold;
             margin-top: 20px;
             transition: background 0.3s, transform 0.2s;
+            border: none;
+            cursor: pointer;
         }
 
-        .btn:hover {
+        .btn:hover:enabled {
             background: #0ff;
             color: #111;
             transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
         }
 
         .product-details {
@@ -179,11 +191,11 @@ $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
             margin-left: 10px;
             transition: background 0.3s;
         }
-        
+
         .wishlist-btn:hover {
             background: <?= $isInWishlist ? '#ff0000' : '#555' ?>;
         }
-        
+
         .button-group {
             display: flex;
             gap: 10px;
@@ -216,10 +228,12 @@ $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
                 <div class="button-group">
                     <form action="tambah_keranjang.php" method="post">
                         <input type="hidden" name="id_product" value="<?= $produk['id_product'] ?>">
-                        <button type="submit" class="btn">Tambah ke Keranjang 🛒</button>
+                        <button type="submit" class="btn" <?= $produk['stock'] < 1 ? 'disabled' : '' ?>>
+                            <?= $produk['stock'] < 1 ? 'Stok Habis' : 'Tambah ke Keranjang 🛒' ?>
+                        </button>
                     </form>
                 </div>
-                
+
                 <br>
                 <a href="products.php" class="back">← Kembali ke Daftar Produk</a>
             </div>

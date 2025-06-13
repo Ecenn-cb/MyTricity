@@ -9,6 +9,31 @@ if (!isset($_SESSION['id_user'])) {
 
 $id_user = $_SESSION['id_user'];
 
+// Hapus item dari keranjang jika ada parameter ?remove=
+if (isset($_GET['remove'])) {
+    $id_product = intval($_GET['remove']);
+
+    // Cari order "pending" milik user
+    $orderQuery = $conn->prepare("SELECT id_order FROM orders WHERE id_user = ? AND status = 'pending'");
+    $orderQuery->bind_param("i", $id_user);
+    $orderQuery->execute();
+    $orderResult = $orderQuery->get_result();
+
+    if ($orderResult->num_rows > 0) {
+        $id_order = $orderResult->fetch_assoc()['id_order'];
+
+        // Hapus item dari order_details
+        $deleteQuery = $conn->prepare("DELETE FROM order_details WHERE id_order = ? AND id_product = ?");
+        $deleteQuery->bind_param("ii", $id_order, $id_product);
+        $deleteQuery->execute();
+    }
+
+    // Redirect agar URL bersih dari ?remove=
+    header("Location: cart.php");
+    exit;
+}
+
+// Ambil isi keranjang
 $orderQuery = $conn->prepare("SELECT id_order FROM orders WHERE id_user = ? AND status = 'pending'");
 $orderQuery->bind_param("i", $id_user);
 $orderQuery->execute();
@@ -16,12 +41,13 @@ $orderResult = $orderQuery->get_result();
 
 $cart = [];
 $total = 0;
+$stok_kurang = false;
 
 if ($orderResult->num_rows > 0) {
     $id_order = $orderResult->fetch_assoc()['id_order'];
 
     $itemsQuery = $conn->prepare("
-        SELECT p.name, p.image, od.quantity, od.price, od.id_product
+        SELECT p.name, p.image, p.stock, od.quantity, od.price, od.id_product
         FROM order_details od 
         JOIN products p ON od.id_product = p.id_product 
         WHERE od.id_order = ?
@@ -31,68 +57,15 @@ if ($orderResult->num_rows > 0) {
     $itemsResult = $itemsQuery->get_result();
 
     while ($item = $itemsResult->fetch_assoc()) {
+        $item['stok_kurang'] = $item['quantity'] > $item['stock'];
+        if ($item['stok_kurang']) {
+            $stok_kurang = true;
+        }
+
         $cart[] = $item;
         $total += $item['price'] * $item['quantity'];
     }
 }
-
-// Proses penghapusan item dari keranjang
-if (isset($_GET['remove']) && isset($_SESSION['id_user'])) {
-    $id_product = intval($_GET['remove']);
-    $id_user = $_SESSION['id_user'];
-
-    // Cari id_order user yang status-nya pending
-    $orderStmt = $conn->prepare("SELECT id_order FROM orders WHERE id_user = ? AND status = 'pending'");
-    $orderStmt->bind_param("i", $id_user);
-    $orderStmt->execute();
-    $orderResult = $orderStmt->get_result();
-
-    if ($orderResult->num_rows > 0) {
-        $id_order = $orderResult->fetch_assoc()['id_order'];
-
-        // Ambil harga dan jumlah item yang ingin dihapus
-        $itemStmt = $conn->prepare("SELECT price, quantity FROM order_details WHERE id_order = ? AND id_product = ?");
-        $itemStmt->bind_param("ii", $id_order, $id_product);
-        $itemStmt->execute();
-        $itemResult = $itemStmt->get_result();
-
-        if ($itemResult->num_rows > 0) {
-            $item = $itemResult->fetch_assoc();
-            $subtotal = $item['price'] * $item['quantity'];
-
-            // Hapus item dari order_details
-            $deleteStmt = $conn->prepare("DELETE FROM order_details WHERE id_order = ? AND id_product = ?");
-            $deleteStmt->bind_param("ii", $id_order, $id_product);
-            $deleteStmt->execute();
-
-            // Update total_price
-            $updateOrder = $conn->prepare("UPDATE orders SET total_price = GREATEST(total_price - ?, 0) WHERE id_order = ?");
-            $updateOrder->bind_param("di", $subtotal, $id_order);
-            $updateOrder->execute();
-
-            // Cek apakah total_price menjadi 0, jika ya hapus order-nya
-            $checkTotal = $conn->prepare("SELECT total_price FROM orders WHERE id_order = ?");
-            $checkTotal->bind_param("i", $id_order);
-            $checkTotal->execute();
-            $resultTotal = $checkTotal->get_result();
-            if ($resultTotal->num_rows > 0) {
-                $totalRow = $resultTotal->fetch_assoc();
-                if ((float)$totalRow['total_price'] <= 0) {
-                    // Hapus order karena sudah tidak ada item dan totalnya 0
-                    $deleteOrder = $conn->prepare("DELETE FROM orders WHERE id_order = ?");
-                    $deleteOrder->bind_param("i", $id_order);
-                    $deleteOrder->execute();
-                }
-            }
-        }
-
-        // Redirect agar tidak terus-menerus menghapus saat refresh
-        header("Location: cart.php");
-        exit;
-    }
-}
-
-
 ?>
 
 <!DOCTYPE html>
@@ -111,65 +84,65 @@ if (isset($_GET['remove']) && isset($_SESSION['id_user'])) {
         }
 
         h1 {
-            margin-bottom: 30px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 2em;
+            margin-bottom: 30px;
         }
 
         .cart-item {
             display: flex;
             background-color: #1c1c1c;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0, 255, 255, 0.05);
-            transition: transform 0.2s;
-        }
-
-        .cart-item:hover {
-            transform: scale(1.01);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            gap: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            align-items: flex-start;
         }
 
         .cart-item img {
-            width: 90px;
-            height: auto;
-            margin-right: 20px;
+            width: 120px;
             border-radius: 8px;
             object-fit: cover;
         }
 
         .info {
-            flex: 1;
+            flex-grow: 1;
         }
 
         .info h3 {
-            margin: 0 0 10px;
-            font-size: 1.1em;
-            color: #0ff;
+            margin: 0;
+            font-size: 1.3em;
+            font-weight: 600;
         }
 
         .info p {
-            margin: 3px 0;
+            margin: 5px 0;
         }
 
-        .qty {
+        .warning {
+            color: #ffcc00;
             font-weight: bold;
+            margin-top: 8px;
+            font-size: 0.95em;
         }
 
         .remove-btn {
             background-color: #ff4c4c;
             color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 10px;
             text-decoration: none;
-            align-self: center;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            align-self: flex-start;
+            white-space: nowrap;
         }
 
         .remove-btn:hover {
-            background-color: #e60000;
+            background-color: #d93636;
         }
 
         .cart-total {
@@ -182,47 +155,33 @@ if (isset($_GET['remove']) && isset($_SESSION['id_user'])) {
 
         .checkout-btn {
             display: inline-block;
-            background-color: #00ffff;
+            background-color: <?= $stok_kurang ? '#666' : '#00ffff' ?>;
             color: #0d0d0d;
             font-weight: bold;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 12px;
             text-decoration: none;
-            margin-top: 20px;
+            margin-top: 25px;
             float: right;
+            pointer-events: <?= $stok_kurang ? 'none' : 'auto' ?>;
+            cursor: <?= $stok_kurang ? 'not-allowed' : 'pointer' ?>;
+            transition: background-color 0.3s ease;
         }
 
         .checkout-btn:hover {
-            background-color: #00dddd;
+            background-color: <?= $stok_kurang ? '#666' : '#00e6e6' ?>;
         }
 
         .back {
             display: inline-block;
-            margin-top: 50px;
+            margin-top: 60px;
             color: #00ffff;
             text-decoration: none;
+            font-weight: 500;
         }
 
-        .back:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .cart-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .cart-item img {
-                margin-bottom: 10px;
-                width: 100%;
-            }
-
-            .checkout-btn {
-                width: 100%;
-                text-align: center;
-                float: none;
-            }
+        .qty {
+            font-weight: 500;
         }
     </style>
 </head>
@@ -240,14 +199,17 @@ if (isset($_GET['remove']) && isset($_SESSION['id_user'])) {
                     <p>Rp <?= number_format($item['price'], 0, ',', '.') ?></p>
                     <p class="qty">Jumlah: <?= $item['quantity'] ?></p>
                     <p>Subtotal: Rp <?= number_format($item['price'] * $item['quantity'], 0, ',', '.') ?></p>
+                    <?php if ($item['stok_kurang']): ?>
+                        <p class="warning">⚠️ Stok tidak cukup (tersisa <?= $item['stock'] ?>)</p>
+                    <?php endif; ?>
                 </div>
                 <a href="cart.php?remove=<?= $item['id_product'] ?>" class="remove-btn" onclick="return confirm('Yakin ingin menghapus item ini?')">Hapus</a>
             </div>
         <?php endforeach; ?>
 
         <div class="cart-total">Total: Rp <?= number_format($total, 0, ',', '.') ?></div>
-        
-        <a href="checkout.php" class="checkout-btn">Lanjut ke Checkout</a>
+
+        <a href="#" class="checkout-btn" onclick="<?= $stok_kurang ? 'alert(\'Beberapa produk stoknya tidak cukup. Hapus atau sesuaikan jumlahnya.\')' : 'window.location.href=\'checkout.php\'' ?>">Lanjut ke Checkout</a>
     <?php endif; ?>
 
     <a href="products.php" class="back">← Kembali ke Produk</a>
