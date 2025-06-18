@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 12, 2025 at 04:16 PM
+-- Generation Time: Jun 18, 2025 at 06:04 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,6 +48,34 @@ INSERT INTO `categories` (`id_category`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `news`
+--
+
+CREATE TABLE `news` (
+  `id_news` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `published_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `news`
+--
+
+INSERT INTO `news` (`id_news`, `title`, `content`, `image`, `published_at`, `updated_at`) VALUES
+(2, 'PRX WON AGAINTS SENTINELS', 'PaperRex berhasil mengambing ngambingi Sentinels malam tadi pada Valorant Championship Tournament Master Toronto', 'PRX-SEN-semi-VALORANT-Masters-Toronto-2025-968x544.jpg', '2025-06-18 10:41:15', '2025-06-18 05:41:15'),
+(3, 'TEST 2', 'TEST 2', NULL, '2025-06-18 09:51:15', '2025-06-18 09:51:15'),
+(4, 'TEST 3', 'TEST 3', NULL, '2025-06-18 09:51:24', '2025-06-18 09:51:24'),
+(5, 'TEST 4', 'TEST 4', NULL, '2025-06-18 09:51:32', '2025-06-18 09:51:32'),
+(6, 'TEST 5', 'TEST 5', NULL, '2025-06-18 09:53:49', '2025-06-18 09:53:49'),
+(7, 'TEST 6', 'TEST 6', NULL, '2025-06-18 09:53:55', '2025-06-18 09:53:55'),
+(8, 'TEST 7', 'TEST 7', NULL, '2025-06-18 09:54:03', '2025-06-18 09:54:03');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `orders`
 --
 
@@ -65,7 +93,9 @@ CREATE TABLE `orders` (
 
 INSERT INTO `orders` (`id_order`, `id_user`, `total_price`, `status`, `created_at`) VALUES
 (1, 1, 600000.00, 'shipped', '2025-06-12 13:05:01'),
-(2, 1, 700000.00, 'completed', '2025-06-12 13:31:17');
+(2, 1, 700000.00, 'completed', '2025-06-12 13:31:17'),
+(5, 1, 2000000.00, 'paid', '2025-06-13 12:02:00'),
+(6, 3, 650000.00, 'paid', '2025-06-13 12:02:37');
 
 -- --------------------------------------------------------
 
@@ -86,7 +116,10 @@ CREATE TABLE `order_details` (
 --
 
 INSERT INTO `order_details` (`id_order_detail`, `id_order`, `id_product`, `quantity`, `price`) VALUES
-(2, 2, 2, 1, 700000.00);
+(2, 2, 2, 1, 700000.00),
+(4, 6, 3, 1, 650000.00),
+(11, 5, 7, 1, 1750000.00),
+(12, 5, 5, 1, 250000.00);
 
 -- --------------------------------------------------------
 
@@ -109,7 +142,9 @@ CREATE TABLE `payments` (
 
 INSERT INTO `payments` (`id_payment`, `id_order`, `payment_method`, `amount`, `payment_date`, `status`) VALUES
 (1, 1, 'E-Wallet (OVO/DANA/Gopay)', 600000.00, '2025-06-12 13:30:53', 'success'),
-(2, 2, 'Transfer Bank', 700000.00, '2025-06-12 13:31:21', 'success');
+(2, 2, 'Transfer Bank', 700000.00, '2025-06-12 13:31:21', 'success'),
+(3, 6, 'COD', 650000.00, '2025-06-13 12:02:48', 'success'),
+(4, 5, 'E-Wallet (OVO/DANA/Gopay)', 2000000.00, '2025-06-18 03:49:15', 'success');
 
 -- --------------------------------------------------------
 
@@ -133,10 +168,14 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`id_product`, `name`, `description`, `price`, `stock`, `image`, `created_at`) VALUES
 (2, 'Headset Hyper X', 'Headsetnya anak gamers', 700000.00, 4, 'prod_684ad0233cb47.png', '2025-06-12 13:03:31'),
-(3, 'Rexux Gaming Chair', 'Kursinya para gamers', 650000.00, 2, 'prod_684ad03ac93c8.png', '2025-06-12 13:03:54'),
+(3, 'Rexux Gaming Chair', 'Kursinya para gamers', 650000.00, 0, 'prod_684ad03ac93c8.png', '2025-06-12 13:03:54'),
 (4, 'Keyboard Mechanic', 'Keyboard cetak cetuk', 250000.00, 3, 'prod_684ad054600a3.webp', '2025-06-12 13:04:20'),
-(5, 'Rexus Mouse', 'Mouse Keren', 250000.00, 5, 'prod_684ad8a15966d.png', '2025-06-12 13:39:45'),
-(6, 'Logitech G203 Lightsync', 'Mouse Murah enak', 400000.00, 5, 'prod_684ad8c698dee.jpg', '2025-06-12 13:40:22');
+(5, 'Rexus Mouse', 'Mouse Keren', 250000.00, 4, 'prod_684ad8a15966d.png', '2025-06-12 13:39:45'),
+(6, 'Logitech G203 Lightsync', 'Mouse Murah enak', 400000.00, 0, 'prod_684ad8c698dee.jpg', '2025-06-12 13:40:22'),
+(7, 'Playstation Gaming Chair', 'Kursinya anak Console', 1750000.00, 4, 'prod_6852344793a61.webp', '2025-06-18 03:36:39'),
+(8, 'Office Chair', 'Nyaman dan cocok untuk dipakai sehari hari', 750000.00, 5, 'prod_685234a12983f.jpeg', '2025-06-18 03:38:09'),
+(9, 'Rexus Gaming Headset', 'Headset Rexus nih boss', 600000.00, 5, 'prod_6852351567f88.jpeg', '2025-06-18 03:40:05'),
+(10, 'Headset Warnet', 'Kamu anak warnet? bugdet pas pas an? ini cocok buat kamu', 200000.00, 10, 'prod_6852353252702.jpg', '2025-06-18 03:40:34');
 
 -- --------------------------------------------------------
 
@@ -156,10 +195,14 @@ CREATE TABLE `product_categories` (
 
 INSERT INTO `product_categories` (`id`, `id_product`, `id_category`) VALUES
 (2, 2, 3),
-(3, 3, 5),
 (4, 4, 2),
 (10, 5, 1),
-(11, 6, 1);
+(12, 6, 1),
+(15, 3, 5),
+(16, 7, 5),
+(17, 8, 5),
+(18, 9, 3),
+(19, 10, 3);
 
 -- --------------------------------------------------------
 
@@ -207,7 +250,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `full_name`, `phone`, `address`, `role`, `created_at`) VALUES
 (1, 'melsencb', 'bagaskaramelsen@gmail.com', '$2y$10$fUyTgIImw9w11XfmSH1eGetIZX9cHwEUxK2rkU4j6y5xJnV61Wh8i', 'Melsen Candika Bagaskara', '0895395251660', 'JL Raya Sukabumi No 35 Cianjur (Cikaret)', 'customer', '2025-06-12 12:58:07'),
-(2, 'admin', 'tricity@gmail.com', '$2y$10$U9PQTvvx2C1Ppp8ORJy7j.PCpIn42OXH1CwkY4Kmtf5N2A9NXgMEK', 'Tricity Corporation', '325351', 'PT. Tricity Cianjur', 'admin', '2025-06-12 12:58:26');
+(2, 'admin', 'tricity@gmail.com', '$2y$10$U9PQTvvx2C1Ppp8ORJy7j.PCpIn42OXH1CwkY4Kmtf5N2A9NXgMEK', 'Tricity Corporation', '325351', 'PT. Tricity Cianjur', 'admin', '2025-06-12 12:58:26'),
+(3, 'gundismis', 'gundismis25@gmail.com', '$2y$10$8PNULKTsSE3iI7BItTbKPekcP2xx6ob7rFusgLKHhLI39hzIrg88S', 'Sigun', '0895395251661', 'Cikaret no 35 Cianjur', 'customer', '2025-06-13 12:02:29');
 
 -- --------------------------------------------------------
 
@@ -232,6 +276,12 @@ CREATE TABLE `wishlist` (
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id_category`),
   ADD UNIQUE KEY `name` (`name`);
+
+--
+-- Indexes for table `news`
+--
+ALTER TABLE `news`
+  ADD PRIMARY KEY (`id_news`);
 
 --
 -- Indexes for table `orders`
@@ -304,34 +354,40 @@ ALTER TABLE `categories`
   MODIFY `id_category` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `news`
+--
+ALTER TABLE `news`
+  MODIFY `id_news` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `id_order_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_order_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id_payment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_payment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id_product` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_product` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `product_categories`
 --
 ALTER TABLE `product_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -343,7 +399,7 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `wishlist`
