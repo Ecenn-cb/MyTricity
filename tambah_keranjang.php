@@ -2,13 +2,18 @@
 session_start();
 include 'koneksiDB.php';
 
-// Validasi session dan input
+// Jika belum login
 if (!isset($_SESSION['id_user'])) {
-    die(json_encode(['status' => 'error', 'message' => 'Anda harus login terlebih dahulu.']));
+    $redirect = getRedirectUrl("Silakan login terlebih dahulu untuk menambahkan ke keranjang.", false);
+    header("Location: $redirect");
+    exit();
 }
 
+// Validasi input produk
 if (!isset($_POST['id_product']) || !is_numeric($_POST['id_product'])) {
-    die(json_encode(['status' => 'error', 'message' => 'ID Produk tidak valid.']));
+    $redirect = getRedirectUrl("ID Produk tidak valid.", false);
+    header("Location: $redirect");
+    exit();
 }
 
 $id_user = $_SESSION['id_user'];
@@ -16,92 +21,97 @@ $id_product = (int)$_POST['id_product'];
 $quantity = 1;
 
 try {
-    // Mulai transaksi
     $conn->begin_transaction();
 
-    // 1. Cek/Create Order Pending
-    $checkOrder = $conn->prepare("SELECT id_order FROM orders WHERE id_user = ? AND status = 'pending' LIMIT 1");
-    $checkOrder->bind_param("i", $id_user);
-    $checkOrder->execute();
-    $orderResult = $checkOrder->get_result();
+    // Cek order dengan status 'pending'
+    $stmt = $conn->prepare("SELECT id_order FROM orders WHERE id_user = ? AND status = 'pending' LIMIT 1");
+    $stmt->bind_param("i", $id_user);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($orderResult->num_rows > 0) {
-        $order = $orderResult->fetch_assoc();
-        $id_order = $order['id_order'];
+    if ($result->num_rows > 0) {
+        $id_order = $result->fetch_assoc()['id_order'];
     } else {
-        $createOrder = $conn->prepare("INSERT INTO orders (id_user, total_price, status) VALUES (?, 0, 'pending')");
-        $createOrder->bind_param("i", $id_user);
-        
-        if (!$createOrder->execute()) {
-            throw new Exception("Gagal membuat order baru: " . $createOrder->error);
-        }
-        
+        $stmt = $conn->prepare("INSERT INTO orders (id_user, total_price, status) VALUES (?, 0, 'pending')");
+        $stmt->bind_param("i", $id_user);
+        if (!$stmt->execute()) throw new Exception("Gagal membuat order.");
         $id_order = $conn->insert_id;
     }
 
-    // 2. Ambil harga produk dan cek stok
-    $productQuery = $conn->prepare("SELECT price, stock FROM products WHERE id_product = ?");
-    $productQuery->bind_param("i", $id_product);
-    $productQuery->execute();
-    $productResult = $productQuery->get_result();
+    // Ambil data produk
+    $stmt = $conn->prepare("SELECT price, stock FROM products WHERE id_product = ?");
+    $stmt->bind_param("i", $id_product);
+    $stmt->execute();
+    $product = $stmt->get_result()->fetch_assoc();
 
-    if ($productResult->num_rows === 0) {
+    if (!$product) {
         throw new Exception("Produk tidak ditemukan.");
     }
 
-    $product = $productResult->fetch_assoc();
-    $price = $product['price'];
-
     if ($product['stock'] < 1) {
-        header("Location: products.php?error=" . urlencode("Stok produk habis."));
-        exit();
+        throw new Exception("Stok produk habis.");
     }
 
-    // 3. Cek/Tambah Item ke Keranjang
-    $checkItem = $conn->prepare("SELECT id_order_detail, quantity FROM order_details WHERE id_order = ? AND id_product = ?");
-    $checkItem->bind_param("ii", $id_order, $id_product);
-    $checkItem->execute();
-    $itemResult = $checkItem->get_result();
+    // Cek apakah produk sudah ada di keranjang
+    $stmt = $conn->prepare("SELECT id_order_detail, quantity FROM order_details WHERE id_order = ? AND id_product = ?");
+    $stmt->bind_param("ii", $id_order, $id_product);
+    $stmt->execute();
+    $item = $stmt->get_result()->fetch_assoc();
 
-    if ($itemResult->num_rows > 0) {
-        $item = $itemResult->fetch_assoc();
-        $newQuantity = $item['quantity'] + $quantity;
-        
-        if ($newQuantity > $product['stock']) {
-            header("Location: products.php?error=" . urlencode("Stok tidak mencukupi untuk penambahan quantity."));
-            exit();
+    if ($item) {
+        $newQty = $item['quantity'] + $quantity;
+        if ($newQty > $product['stock']) {
+            throw new Exception("Stok tidak mencukupi untuk quantity baru.");
         }
-        
-        $updateItem = $conn->prepare("UPDATE order_details SET quantity = ? WHERE id_order_detail = ?");
-        $updateItem->bind_param("ii", $newQuantity, $item['id_order_detail']);
-        
-        if (!$updateItem->execute()) {
-            throw new Exception("Gagal update quantity: " . $updateItem->error);
-        }
+
+        $stmt = $conn->prepare("UPDATE order_details SET quantity = ? WHERE id_order_detail = ?");
+        $stmt->bind_param("ii", $newQty, $item['id_order_detail']);
+        if (!$stmt->execute()) throw new Exception("Gagal update quantity.");
     } else {
-        $addItem = $conn->prepare("INSERT INTO order_details (id_order, id_product, quantity, price) VALUES (?, ?, ?, ?)");
-        $addItem->bind_param("iiid", $id_order, $id_product, $quantity, $price);
-        
-        if (!$addItem->execute()) {
-            throw new Exception("Gagal menambahkan item: " . $addItem->error);
-        }
+        $stmt = $conn->prepare("INSERT INTO order_details (id_order, id_product, quantity, price) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iiid", $id_order, $id_product, $quantity, $product['price']);
+        if (!$stmt->execute()) throw new Exception("Gagal menambahkan item ke keranjang.");
     }
 
-    // 4. Update total harga order
-    $updateTotal = $conn->prepare("UPDATE orders SET total_price = (SELECT SUM(quantity * price) FROM order_details WHERE id_order = ?) WHERE id_order = ?");
-    $updateTotal->bind_param("ii", $id_order, $id_order);
-    
-    if (!$updateTotal->execute()) {
-        throw new Exception("Gagal update total harga: " . $updateTotal->error);
-    }
+    // Update total harga order
+    $stmt = $conn->prepare("
+        UPDATE orders 
+        SET total_price = (
+            SELECT SUM(quantity * price) 
+            FROM order_details 
+            WHERE id_order = ?
+        ) 
+        WHERE id_order = ?
+    ");
+    $stmt->bind_param("ii", $id_order, $id_order);
+    if (!$stmt->execute()) throw new Exception("Gagal update total harga.");
 
     $conn->commit();
-    header("Location: cart.php?success=1");
+
+    // Redirect sukses
+    $redirect = getRedirectUrl("Produk berhasil ditambahkan ke keranjang.", true);
+    header("Location: $redirect");
     exit();
 
 } catch (Exception $e) {
     $conn->rollback();
-    error_log("Error in cart process: " . $e->getMessage());
-    header("Location: products.php?error=" . urlencode($e->getMessage()));
+    error_log("Cart error: " . $e->getMessage());
+
+    $redirect = getRedirectUrl($e->getMessage(), false);
+    header("Location: $redirect");
     exit();
 }
+
+// 🔧 Fungsi bantu untuk menghindari masalah URL double parameter
+function getRedirectUrl($message, $isSuccess = true) {
+    $redirect = $_SERVER['HTTP_REFERER'] ?? 'products.php';
+    $param = $isSuccess ? 'success' : 'error';
+
+    // Cek apakah URL sudah memiliki query string
+    if (strpos($redirect, '?') !== false) {
+        return $redirect . '&' . $param . '=' . urlencode($message);
+    } else {
+        return $redirect . '?' . $param . '=' . urlencode($message);
+    }
+}
+?>

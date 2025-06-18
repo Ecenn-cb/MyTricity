@@ -37,7 +37,7 @@ foreach ($cartItems as $item) {
       <ul>
         <li><a href="index.php">Home</a></li>
         <li><a href="products.php">Products</a></li>
-        <li><a href="#">Blog</a></li>
+        <li><a href="news.php">News</a></li>
       </ul>
     </nav>
 

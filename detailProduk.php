@@ -2,18 +2,12 @@
 session_start();
 include 'koneksiDB.php';
 
-// Cek apakah user sudah login
-if (!isset($_SESSION['id_user'])) {
-    header("Location: loginForm.php");
-    exit();
-}
-
 if (!isset($_GET['id'])) {
     die("Produk tidak ditemukan!");
 }
 
 $id = $_GET['id'];
-$user_id = $_SESSION['id_user'];
+$user_id = $_SESSION['id_user'] ?? null;
 
 // Ambil data produk
 $query = $conn->prepare("SELECT * FROM products WHERE id_product = ?");
@@ -53,21 +47,15 @@ $ratingResult = $ratingQuery->get_result()->fetch_assoc();
 $avgRating = $ratingResult['avg_rating'] ? round($ratingResult['avg_rating'], 1) : null;
 $totalReviews = $ratingResult['total_reviews'];
 
-// Cek wishlist
-$wishlistQuery = $conn->prepare("
-    SELECT 1 FROM wishlist 
-    WHERE id_user = ? AND id_product = ?
-");
-$wishlistQuery->bind_param("ii", $user_id, $id);
-$wishlistQuery->execute();
-$isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
+// Cek wishlist jika user login
+$isInWishlist = false;
+if ($user_id !== null) {
+    $wishlistQuery = $conn->prepare("SELECT 1 FROM wishlist WHERE id_user = ? AND id_product = ?");
+    $wishlistQuery->bind_param("ii", $user_id, $id);
+    $wishlistQuery->execute();
+    $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
+}
 ?>
-
-<?php if (isset($_GET['error'])): ?>
-<script>
-    alert(<?= json_encode($_GET['error']); ?>);
-</script>
-<?php endif; ?>
 
 <!DOCTYPE html>
 <html lang="id">
@@ -181,21 +169,6 @@ $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
             flex: 2;
         }
 
-        .wishlist-btn {
-            background: <?= $isInWishlist ? '#ff3333' : '#333' ?>;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: background 0.3s;
-        }
-
-        .wishlist-btn:hover {
-            background: <?= $isInWishlist ? '#ff0000' : '#555' ?>;
-        }
-
         .button-group {
             display: flex;
             gap: 10px;
@@ -204,40 +177,60 @@ $isInWishlist = $wishlistQuery->get_result()->num_rows > 0;
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="product-details">
-            <div class="product-image">
-                <img src="uploads/<?= htmlspecialchars($produk['image']) ?>" alt="<?= htmlspecialchars($produk['name']) ?>">
+
+<?php if (isset($_GET['error'])): ?>
+    <script>alert(<?= json_encode($_GET['error']); ?>);</script>
+<?php endif; ?>
+
+<?php if (isset($_GET['success'])): ?>
+    <script>alert(<?= json_encode($_GET['success']); ?>);</script>
+<?php endif; ?>
+
+<div class="container">
+    <div class="product-details">
+        <div class="product-image">
+            <img src="uploads/<?= htmlspecialchars($produk['image']) ?>" alt="<?= htmlspecialchars($produk['name']) ?>">
+        </div>
+        <div class="product-info">
+            <h1><?= htmlspecialchars($produk['name']) ?></h1>
+            <p class="harga">Rp <?= number_format($produk['price'], 0, ',', '.') ?></p>
+            <p class="stok">Stok: <?= $produk['stock'] ?></p>
+            <p><?= nl2br(htmlspecialchars($produk['description'])) ?></p>
+
+            <?php if (!empty($kategoriList)): ?>
+                <p class="kategori">Kategori: <?= implode(', ', array_map('htmlspecialchars', $kategoriList)) ?></p>
+            <?php endif; ?>
+
+            <?php if ($totalReviews > 0): ?>
+                <p class="rating">Rating: <?= $avgRating ?> / 5 (<?= $totalReviews ?> ulasan)</p>
+            <?php else: ?>
+                <p class="rating">Belum ada ulasan</p>
+            <?php endif; ?>
+
+            <div class="button-group">
+                <form action="tambah_keranjang.php" method="post" onsubmit="return confirmLogin();">
+                    <input type="hidden" name="id_product" value="<?= $produk['id_product'] ?>">
+                    <button type="submit" class="btn" <?= $produk['stock'] < 1 ? 'disabled' : '' ?>>
+                        <?= $produk['stock'] < 1 ? 'Stok Habis' : 'Tambah ke Keranjang 🛒' ?>
+                    </button>
+                </form>
             </div>
-            <div class="product-info">
-                <h1><?= htmlspecialchars($produk['name']) ?></h1>
-                <p class="harga">Rp <?= number_format($produk['price'], 0, ',', '.') ?></p>
-                <p class="stok">Stok: <?= $produk['stock'] ?></p>
-                <p><?= nl2br(htmlspecialchars($produk['description'])) ?></p>
 
-                <?php if (!empty($kategoriList)): ?>
-                    <p class="kategori">Kategori: <?= implode(', ', array_map('htmlspecialchars', $kategoriList)) ?></p>
-                <?php endif; ?>
-
-                <?php if ($totalReviews > 0): ?>
-                    <p class="rating">Rating: <?= $avgRating ?> / 5 (<?= $totalReviews ?> ulasan)</p>
-                <?php else: ?>
-                    <p class="rating">Belum ada ulasan</p>
-                <?php endif; ?>
-
-                <div class="button-group">
-                    <form action="tambah_keranjang.php" method="post">
-                        <input type="hidden" name="id_product" value="<?= $produk['id_product'] ?>">
-                        <button type="submit" class="btn" <?= $produk['stock'] < 1 ? 'disabled' : '' ?>>
-                            <?= $produk['stock'] < 1 ? 'Stok Habis' : 'Tambah ke Keranjang 🛒' ?>
-                        </button>
-                    </form>
-                </div>
-
-                <br>
-                <a href="products.php" class="back">← Kembali ke Daftar Produk</a>
-            </div>
+            <br>
+            <a href="products.php" class="back">← Kembali ke Daftar Produk</a>
         </div>
     </div>
+</div>
+
+<script>
+function confirmLogin() {
+    const isLoggedIn = <?= json_encode($user_id !== null) ?>;
+    if (!isLoggedIn) {
+        alert("Silakan login terlebih dahulu untuk menambahkan ke keranjang.");
+        return false;
+    }
+    return true;
+}
+</script>
 </body>
 </html>

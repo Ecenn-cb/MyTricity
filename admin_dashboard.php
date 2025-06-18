@@ -50,6 +50,12 @@
                 <h2>Info Pembelian</h2>
                 <p>Mengatur barang yang dibeli konsumen</p>
             </a>
+
+            <a href="adminNews.php" class="card">
+                <div class="icon"><i class="fas fa-box"></i></div>
+                <h2>Edit News</h2>
+                <p>Berita Terbaru Tricity</p>
+            </a>
         </div>
     </div>
 </body>
