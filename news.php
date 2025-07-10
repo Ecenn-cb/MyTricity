@@ -4,17 +4,14 @@ session_start();
 $username = $_SESSION['username'] ?? null;
 $role = $_SESSION['role'] ?? null;
 
-// Pagination setup
 $limit = 5;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Hitung total berita
 $totalQuery = $conn->query("SELECT COUNT(*) as total FROM news");
 $totalRows = $totalQuery->fetch_assoc()['total'];
 $totalPages = ceil($totalRows / $limit);
 
-// Ambil berita sesuai halaman
 $result = $conn->query("SELECT * FROM news ORDER BY published_at DESC LIMIT $limit OFFSET $offset");
 ?>
 

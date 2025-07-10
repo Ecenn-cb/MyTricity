@@ -174,6 +174,19 @@ if ($user_id !== null) {
             gap: 10px;
             margin-top: 20px;
         }
+
+        .btn-ulasan {
+            background: #0ff;
+            color: #111;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .btn-ulasan:hover {
+            background: #0cf;
+            box-shadow: 0 0 12px #0ff;
+            transform: scale(1.05);
+        }
+
     </style>
 </head>
 <body>
@@ -214,6 +227,10 @@ if ($user_id !== null) {
                         <?= $produk['stock'] < 1 ? 'Stok Habis' : 'Tambah ke Keranjang 🛒' ?>
                     </button>
                 </form>
+
+                <a href="ulasan.php?id=<?= $produk['id_product'] ?>" class="btn btn-ulasan">
+                    Lihat Ulasan
+                </a>
             </div>
 
             <br>

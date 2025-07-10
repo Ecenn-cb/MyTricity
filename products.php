@@ -109,6 +109,7 @@ while ($row = $wishlistRes->fetch_assoc()) {
     <div class="logo">
       <i class="fas fa-gamepad"></i> <span>TRICITY</span>
     </div>
+    
     <nav>
       <ul>
         <li><a href="index.php">Home</a></li>
@@ -118,30 +119,43 @@ while ($row = $wishlistRes->fetch_assoc()) {
     </nav>
 
     <div class="icons">
+      <!-- Informasi pengguna -->
       <div class="user-info">
-        <a href="<?php echo $username ? 'profile.php' : 'LoginForm.php'; ?>" style="text-decoration: none;">
+        <a href="<?= isset($username) && $username ? 'profile.php' : 'LoginForm.php'; ?>" style="text-decoration: none;">
           <i class="fas fa-user" style="color: #FFFFFF;"></i>
-          <?php if ($username): ?>
-            <span class="username" style="color: #FFFFFF;"><?php echo htmlspecialchars($username); ?></span>
+          <?php if (isset($username) && $username): ?>
+            <span class="username" style="color: #FFFFFF;"><?= htmlspecialchars($username); ?></span>
           <?php endif; ?>
         </a>
       </div>
 
-      <?php if ($username && isset($role) && $role === 'admin'): ?>
+      <!-- Jika admin: tampilkan dashboard & chat admin -->
+      <?php if (isset($username, $role) && $role === 'admin'): ?>
         <a href="admin_dashboard.php" title="Dashboard Admin">
           <i class="fas fa-tachometer-alt" style="color: #FFFFFF;"></i>
         </a>
+        <a href="admin_chat_box.php" title="Chat Admin">
+          <i class="fas fa-comment" style="color: #FFFFFF;"></i>
+        </a>
+      <?php elseif (isset($username)): ?>
+        <!-- Jika customer: tampilkan chat customer -->
+        <a href="chat_box.php" title="Chat dengan Admin">
+          <i class="fas fa-comment" style="color: #FFFFFF;"></i>
+        </a>
       <?php endif; ?>
 
-        <a href="cart.php"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
-        <a href="produk_saya.php"><i class="fas fa-receipt" style="color: #FFFFFF;"></i></a>
+      <!-- Ikon umum -->
+      <a href="cart.php"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
+      <a href="produk_saya.php"><i class="fas fa-receipt" style="color: #FFFFFF;"></i></a>
 
-      <?php if ($username): ?>
+      <!-- Logout -->
+      <?php if (isset($username)): ?>
         <a href="logout.php" style="color: #FFFFFF; text-decoration: none;">Logout</a>
       <?php endif; ?>
     </div>
   </div>
 </header>
+
 
 <br>
 <br>

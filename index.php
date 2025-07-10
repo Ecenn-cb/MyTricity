@@ -29,43 +29,58 @@ foreach ($cartItems as $item) {
 <body>
   
   <header>
-  <div class="navbar visible" id="mainNavbar">
-    <div class="logo">
-      <i class="fas fa-gamepad"></i> <span>TRICITY</span>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="index.php">Home</a></li>
-        <li><a href="products.php">Products</a></li>
-        <li><a href="news.php">News</a></li>
-      </ul>
-    </nav>
-
-    <div class="icons">
-      <div class="user-info">
-        <a href="<?php echo $username ? 'profile.php' : 'LoginForm.php'; ?>" style="text-decoration: none;">
-          <i class="fas fa-user" style="color: #FFFFFF;"></i>
-          <?php if ($username): ?>
-            <span class="username" style="color: #FFFFFF;"><?php echo htmlspecialchars($username); ?></span>
-          <?php endif; ?>
-        </a>
+    <div class="navbar visible" id="mainNavbar">
+      <div class="logo">
+        <i class="fas fa-gamepad"></i> <span>TRICITY</span>
       </div>
 
-      <?php if ($username && isset($role) && $role === 'admin'): ?>
-        <a href="admin_dashboard.php" title="Dashboard Admin">
-          <i class="fas fa-tachometer-alt" style="color: #FFFFFF;"></i>
-        </a>
-      <?php endif; ?>
+      <nav>
+        <ul>
+          <li><a href="index.php">Home</a></li>
+          <li><a href="products.php">Products</a></li>
+          <li><a href="news.php">News</a></li>
+        </ul>
+      </nav>
 
-      <a href="cart.php"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
-      <a href="produk_saya.php"><i class="fas fa-receipt" style="color: #FFFFFF;"></i></a>
+      <div class="icons">
+        <div class="user-info">
+          <a href="<?= $username ? 'profile.php' : 'LoginForm.php'; ?>" style="text-decoration: none;">
+            <i class="fas fa-user" style="color: #FFFFFF;"></i>
+            <?php if ($username): ?>
+              <span class="username" style="color: #FFFFFF;"><?= htmlspecialchars($username); ?></span>
+            <?php endif; ?>
+          </a>
+        </div>
 
-      <?php if ($username): ?>
-        <a href="logout.php" style="color: #FFFFFF; text-decoration: none;">Logout</a>
-      <?php endif; ?>
+        <?php if ($username && isset($role) && $role === 'admin'): ?>
+          <a href="admin_dashboard.php" title="Dashboard Admin">
+            <i class="fas fa-tachometer-alt" style="color: #FFFFFF;"></i>
+          </a>
+        <?php endif; ?>
+
+        <!-- Chat icon: arahkan ke chat yang sesuai -->
+        <?php if ($username): ?>
+          <?php if ($role === 'admin'): ?>
+            <a href="admin_chat_box.php" title="Chat Admin">
+              <i class="fas fa-comment" style="color: #FFFFFF;"></i>
+            </a>
+          <?php else: ?>
+            <a href="chat_box.php" title="Chat dengan Admin">
+              <i class="fas fa-comment" style="color: #FFFFFF;"></i>
+            </a>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <a href="cart.php"><i class="fas fa-shopping-cart" style="color: #FFFFFF;"></i></a>
+        <a href="produk_saya.php"><i class="fas fa-receipt" style="color: #FFFFFF;"></i></a>
+
+        <?php if ($username): ?>
+          <a href="logout.php" style="color: #FFFFFF; text-decoration: none;">Logout</a>
+        <?php endif; ?>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
+
 
 
   <main class="hero">
