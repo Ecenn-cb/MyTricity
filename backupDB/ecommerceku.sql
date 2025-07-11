@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 18, 2025 at 06:04 AM
+-- Generation Time: Jul 11, 2025 at 03:09 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,6 +44,30 @@ INSERT INTO `categories` (`id_category`, `name`) VALUES
 (6, 'Microphone'),
 (1, 'Mouse'),
 (4, 'Speaker');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chat_messages`
+--
+
+CREATE TABLE `chat_messages` (
+  `id` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `is_from_admin` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `chat_messages`
+--
+
+INSERT INTO `chat_messages` (`id`, `id_user`, `message`, `is_from_admin`, `created_at`) VALUES
+(1, 1, 'testing', 0, '2025-07-10 20:55:30'),
+(2, 1, 'halo terimakasih sudah menghubungi tempat belanja kami', 1, '2025-07-10 20:58:42'),
+(3, 3, 'halo min', 0, '2025-07-10 21:07:18'),
+(4, 3, 'halo juga terimakasih sudah menghubungi kami !!', 1, '2025-07-10 21:09:43');
 
 -- --------------------------------------------------------
 
@@ -95,7 +119,9 @@ INSERT INTO `orders` (`id_order`, `id_user`, `total_price`, `status`, `created_a
 (1, 1, 600000.00, 'shipped', '2025-06-12 13:05:01'),
 (2, 1, 700000.00, 'completed', '2025-06-12 13:31:17'),
 (5, 1, 2000000.00, 'paid', '2025-06-13 12:02:00'),
-(6, 3, 650000.00, 'paid', '2025-06-13 12:02:37');
+(6, 3, 650000.00, 'paid', '2025-06-13 12:02:37'),
+(7, 1, 250000.00, 'cancelled', '2025-07-10 13:29:18'),
+(8, 1, 250000.00, 'cancelled', '2025-07-10 13:43:53');
 
 -- --------------------------------------------------------
 
@@ -119,7 +145,9 @@ INSERT INTO `order_details` (`id_order_detail`, `id_order`, `id_product`, `quant
 (2, 2, 2, 1, 700000.00),
 (4, 6, 3, 1, 650000.00),
 (11, 5, 7, 1, 1750000.00),
-(12, 5, 5, 1, 250000.00);
+(12, 5, 5, 1, 250000.00),
+(13, 7, 4, 1, 250000.00),
+(14, 8, 5, 1, 250000.00);
 
 -- --------------------------------------------------------
 
@@ -144,7 +172,9 @@ INSERT INTO `payments` (`id_payment`, `id_order`, `payment_method`, `amount`, `p
 (1, 1, 'E-Wallet (OVO/DANA/Gopay)', 600000.00, '2025-06-12 13:30:53', 'success'),
 (2, 2, 'Transfer Bank', 700000.00, '2025-06-12 13:31:21', 'success'),
 (3, 6, 'COD', 650000.00, '2025-06-13 12:02:48', 'success'),
-(4, 5, 'E-Wallet (OVO/DANA/Gopay)', 2000000.00, '2025-06-18 03:49:15', 'success');
+(4, 5, 'E-Wallet (OVO/DANA/Gopay)', 2000000.00, '2025-06-18 03:49:15', 'success'),
+(5, 7, 'E-Wallet (OVO/DANA/Gopay)', 250000.00, '2025-07-10 13:40:32', 'success'),
+(6, 8, 'E-Wallet (OVO/DANA/Gopay)', 250000.00, '2025-07-10 13:44:21', 'success');
 
 -- --------------------------------------------------------
 
@@ -169,8 +199,8 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id_product`, `name`, `description`, `price`, `stock`, `image`, `created_at`) VALUES
 (2, 'Headset Hyper X', 'Headsetnya anak gamers', 700000.00, 4, 'prod_684ad0233cb47.png', '2025-06-12 13:03:31'),
 (3, 'Rexux Gaming Chair', 'Kursinya para gamers', 650000.00, 0, 'prod_684ad03ac93c8.png', '2025-06-12 13:03:54'),
-(4, 'Keyboard Mechanic', 'Keyboard cetak cetuk', 250000.00, 3, 'prod_684ad054600a3.webp', '2025-06-12 13:04:20'),
-(5, 'Rexus Mouse', 'Mouse Keren', 250000.00, 4, 'prod_684ad8a15966d.png', '2025-06-12 13:39:45'),
+(4, 'Keyboard Mechanic', 'Keyboard cetak cetuk', 250000.00, 2, 'prod_684ad054600a3.webp', '2025-06-12 13:04:20'),
+(5, 'Rexus Mouse', 'Mouse Keren', 250000.00, 3, 'prod_684ad8a15966d.png', '2025-06-12 13:39:45'),
 (6, 'Logitech G203 Lightsync', 'Mouse Murah enak', 400000.00, 0, 'prod_684ad8c698dee.jpg', '2025-06-12 13:40:22'),
 (7, 'Playstation Gaming Chair', 'Kursinya anak Console', 1750000.00, 4, 'prod_6852344793a61.webp', '2025-06-18 03:36:39'),
 (8, 'Office Chair', 'Nyaman dan cocok untuk dipakai sehari hari', 750000.00, 5, 'prod_685234a12983f.jpeg', '2025-06-18 03:38:09'),
@@ -278,6 +308,13 @@ ALTER TABLE `categories`
   ADD UNIQUE KEY `name` (`name`);
 
 --
+-- Indexes for table `chat_messages`
+--
+ALTER TABLE `chat_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_user` (`id_user`);
+
+--
 -- Indexes for table `news`
 --
 ALTER TABLE `news`
@@ -354,6 +391,12 @@ ALTER TABLE `categories`
   MODIFY `id_category` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `chat_messages`
+--
+ALTER TABLE `chat_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `news`
 --
 ALTER TABLE `news`
@@ -363,19 +406,19 @@ ALTER TABLE `news`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `id_order_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_order_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id_payment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_payment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -410,6 +453,12 @@ ALTER TABLE `wishlist`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `chat_messages`
+--
+ALTER TABLE `chat_messages`
+  ADD CONSTRAINT `chat_messages_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `orders`
